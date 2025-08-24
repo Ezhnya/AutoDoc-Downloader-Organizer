@@ -81,9 +81,11 @@ python main.py
 * Automated routing based on sender.
 * Export to Excel and notifications via Telegram bot.
 
-👤 Author
+## 👤 Author
+
 Developed with by Ezhnya 🌐[GitHub](https://github.com/Ezhnya) |🤖[Telegram Channel](https://t.me/+2MllMZSL7EQyNDA6)
 
-📜 License
+## 📜 License
+
 This project is free for educational and personal use. Please credit the author: © 2025 Ezhnya
 
