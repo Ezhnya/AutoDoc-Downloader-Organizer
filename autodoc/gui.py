@@ -1,4 +1,3 @@
-
 import os
 import sys
 from PySide6.QtWidgets import (
@@ -31,14 +30,14 @@ class AutoDocApp(QWidget):
         # Controls row
         controls = QHBoxLayout()
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Пошук за ім'ям, відправником, темою...")
+        self.search_input.setPlaceholderText("Search by name, sender, subject...")
         self.category_filter = QComboBox()
         self.category_filter.addItems(["", "documents", "spreadsheets", "invoices", "contracts", "reports", "tickets", "tax", "hr", "media", "archive", "uncategorized"])
-        self.fetch_btn = QPushButton("Отримати з пошти")
-        self.index_btn = QPushButton("Переіндексувати папки")
-        self.open_dir_btn = QPushButton("Відкрити папку архіву")
+        self.fetch_btn = QPushButton("Fetch from Email")
+        self.index_btn = QPushButton("Reindex Folders")
+        self.open_dir_btn = QPushButton("Open Archive Folder")
 
-        controls.addWidget(QLabel("Категорія:"))
+        controls.addWidget(QLabel("Category:"))
         controls.addWidget(self.category_filter, 1)
         controls.addWidget(self.search_input, 3)
         controls.addWidget(self.fetch_btn)
@@ -49,15 +48,15 @@ class AutoDocApp(QWidget):
 
         # Table
         self.table = QTableWidget(0, 8)
-        self.table.setHorizontalHeaderLabels(["ID", "Назва", "Категорія", "Відправник", "Тема", "Отримано", "Збережено", "Розмір (KB)"])
+        self.table.setHorizontalHeaderLabels(["ID", "Name", "Category", "Sender", "Subject", "Received", "Saved", "Size (KB)"])
         self.table.setSortingEnabled(True)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         layout.addWidget(self.table, 1)
 
         # Footer
         footer = QHBoxLayout()
-        self.status = QLabel("Готово")
-        self.open_btn = QPushButton("Відкрити файл")
+        self.status = QLabel("Ready")
+        self.open_btn = QPushButton("Open File")
         footer.addWidget(self.status, 1)
         footer.addWidget(self.open_btn)
         layout.addLayout(footer)
@@ -95,13 +94,13 @@ class AutoDocApp(QWidget):
                 if col == 0:
                     item.setData(Qt.ItemDataRole.UserRole, r[2])  # filepath hidden in id cell
                 self.table.setItem(row, col, item)
-        self.status.setText(f"Показано: {self.table.rowCount()} документів")
+        self.status.setText(f"Showing: {self.table.rowCount()} documents")
 
     def on_fetch(self):
         try:
             M = connect_imap(self.s.IMAP_HOST, self.s.IMAP_PORT, self.s.IMAP_USERNAME, self.s.IMAP_PASSWORD)
         except Exception as e:
-            QMessageBox.critical(self, "Помилка підключення", str(e))
+            QMessageBox.critical(self, "Connection Error", str(e))
             return
         try:
             recs = fetch_attachments(
@@ -115,10 +114,10 @@ class AutoDocApp(QWidget):
                     count += 1
                 except Exception:
                     pass
-            self.status.setText(f"Завантажено та збережено: {count} файлів.")
+            self.status.setText(f"Downloaded and saved: {count} files.")
             self._refresh_table()
         except Exception as e:
-            QMessageBox.critical(self, "Помилка отримання", str(e))
+            QMessageBox.critical(self, "Fetch Error", str(e))
         finally:
             try:
                 M.logout()
@@ -133,7 +132,7 @@ class AutoDocApp(QWidget):
                 count += 1
             except Exception:
                 pass
-        self.status.setText(f"Переіндексовано: {count} файлів.")
+        self.status.setText(f"Reindexed: {count} files.")
         self._refresh_table()
 
     def on_open_dir(self):
@@ -148,12 +147,12 @@ class AutoDocApp(QWidget):
     def on_open_file(self):
         row = self.table.currentRow()
         if row < 0:
-            QMessageBox.information(self, "Відкриття", "Виберіть документ у таблиці.")
+            QMessageBox.information(self, "Open", "Select a document in the table.")
             return
         id_item = self.table.item(row, 0)
         filepath = id_item.data(Qt.ItemDataRole.UserRole)
         if not filepath or not os.path.exists(filepath):
-            QMessageBox.warning(self, "Файл не знайдено", "Шлях до файлу недійсний.")
+            QMessageBox.warning(self, "File Not Found", "File path is invalid.")
             return
         if os.name == "nt":
             os.startfile(filepath)
