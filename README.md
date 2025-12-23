@@ -79,7 +79,7 @@ python main.py
 
 * OCR / text search using Tesseract or PDFMiner.
 * Automated routing based on sender.
-* Export to Excel and notifications via Telegram bot.
+* Export to Excel.
 
 ## 👤 Author
 
